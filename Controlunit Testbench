@@ -1,0 +1,49 @@
+module ControlUnit_Testbench; 
+ 
+reg [31:0] instr; 
+reg [3:0] status;
+reg rst;
+reg clock;
+
+wire ALUsrc;
+wire PCsrc;
+wire RegRW;
+wire [3:0] ALU_op;
+wire Mem_W_R;
+wire WB; 
+wire Cin;
+wire [1:0] imm_sel;
+
+
+
+
+
+
+ControlUnit dut(.instr(instr), .status(status), .rst(rst), .clock(clock), .ALUsrc(ALUsrc), .PCsrc(PCsrc), .RegRW(RegRW), .ALU_op(ALUop), .Mem_W_R(Mem_W_R), .WB(WB), .Cin(Cin), .imm_sel(imm_sel));
+
+initial begin 
+clock=0;
+end
+
+always
+	#5 clock <= ~clock;
+
+initial begin 
+
+rst=1;
+#10 
+rst=0;
+status = 4'b0000;
+instr=32'b00000000011100110000001010110011;
+#10 
+instr=32'b00000000101000101000001110010011;
+#10 
+instr=32'b00000000011000111010000000100011;
+#10 
+instr=32'b00000000000000111010111000000011;
+#10 
+instr=32'b00000001110000111000111101100011;
+
+end
+
+endmodule
