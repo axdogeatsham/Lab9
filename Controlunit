@@ -1,0 +1,78 @@
+module ControlUnit ( instr, status, rst, clock, ALUsrc, PCsrc, WB, imm_sel, ALU_op, Mem_W_R, RegRW, imm_sel, Cin);
+input [31:0] instr;
+input [3:0] status;
+input rst;
+input clock;
+
+output reg ALUsrc;
+output reg PCsrc;
+output reg RegRW;
+output reg [3:0] ALU_op;
+output reg Mem_W_R;
+output reg WB;
+output reg Cin;
+output reg [1:0]imm_sel;
+
+
+always@(instr or rst or status) begin
+if (rst == 1 && instr[6:0] == 7'b0000000)begin
+RegRW = 1'b1;
+Mem_W_R = 1'b1;
+end
+
+else if(rst == 0) begin
+	if(instr[6:0] == 7'b0000001)begin
+	RegRW = 1'b1;
+	Mem_W_R = 1'b1;
+	end
+	
+	// R type
+	else if (instr[6:0] == 7'b0110011) begin 
+	Cin = 1'b0;
+	ALUsrc = 1'b0;
+	RegRW = 1'b1;
+	Mem_W_R = 1'b1;
+	WB = 1'b1;
+	PCsrc = 1'b0;
+	imm_sel = 2'b00;
+	ALU_op <= {instr[30], instr[14:12]} ; 
+	end
+	
+	// I type & LW
+	else if ( instr[6:0] == 7'b0010011 | instr[6:0] == 7'b0000011) begin 
+	Cin = 1'b0;
+	ALUsrc = 1'b1;
+	RegRW = 1'b1;
+	Mem_W_R = 1'b1;
+	WB = 1'b1;
+	PCsrc = 1'b0;
+	imm_sel = 2'b00;
+	ALU_op = {instr[30], instr[14:12]}; // opcode
+	end
+	
+	
+	else if (instr[6:0] == 7'b0100011) begin // S type
+	Cin = 1'b0;
+	ALUsrc = 1'b1;
+	RegRW = 1'b1; // stays 1
+	Mem_W_R = 1'b1; // stays 1
+	WB = 1'b0;
+	PCsrc = 1'b0;
+	imm_sel = 2'b01;
+	ALU_op = {instr[30], instr[14:12]}; // opcode
+	end
+	
+	else if (instr[6:0] == 7'b1100011) begin // B
+	Cin = 1'b0;
+	ALUsrc = 1'b1;
+	RegRW = 1'b1; // stays 1
+	Mem_W_R = 1'b1; // stays 1
+	WB = 1'b0;
+	PCsrc = 1'b0;
+	imm_sel = 2'b11;
+	ALU_op = {instr[30], instr[14:12]}; // opcode	
+	end
+
+end
+end
+endmodule
